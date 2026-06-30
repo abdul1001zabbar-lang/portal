@@ -28,11 +28,12 @@ function Devices() {
     const [imei, setImei] = useState("");
     const [location, setLocation] = useState("");
 
-    const [devices, setDevices] = useState(getDevices());
+    const [devices, setDevices] =
+        useState(getDevices());
 
-    const updateDevices = (updatedDevices) => {
-        setDevices(updatedDevices);
-        saveDevices(updatedDevices);
+    const updateDevices = (updated) => {
+        setDevices(updated);
+        saveDevices(updated);
     };
 
     const addDevice = () => {
@@ -61,12 +62,12 @@ function Devices() {
             location: location
         };
 
-        const updatedDevices = [
+        const updated = [
             ...devices,
             newDevice
         ];
 
-        updateDevices(updatedDevices);
+        updateDevices(updated);
 
         setDeviceName("");
         setDeviceType("");
@@ -76,17 +77,17 @@ function Devices() {
 
     const deleteDevice = (id) => {
 
-        const updatedDevices =
+        const updated =
             devices.filter(
                 device => device.id !== id
             );
 
-        updateDevices(updatedDevices);
+        updateDevices(updated);
     };
 
-    const toggleStatus = (id) => {
+    const changeStatus = (id) => {
 
-        const updatedDevices =
+        const updated =
             devices.map(device =>
                 device.id === id
                     ? {
@@ -99,21 +100,40 @@ function Devices() {
                     : device
             );
 
-        updateDevices(updatedDevices);
+        updateDevices(updated);
     };
 
     return (
         <Layout>
 
-            <Typography variant="h4" gutterBottom>
-                Device Management
+            <Typography
+                variant="h4"
+                gutterBottom
+            >
+                IoT Device DB Management
+            </Typography>
+
+            <Typography
+                variant="subtitle1"
+                color="primary"
+            >
+                Device Registration • Inventory • Lifecycle Management
+            </Typography>
+
+            <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mb: 4 }}
+            >
+                Create, monitor, update and manage connected
+                IoT devices across the 5G AF platform.
             </Typography>
 
             <Card sx={{ mb: 3 }}>
                 <CardContent>
 
                     <Typography variant="h6">
-                        Add New Device
+                        Add New IoT Device
                     </Typography>
 
                     <br />
@@ -171,7 +191,7 @@ function Devices() {
                                 sx={{ height: "56px" }}
                                 onClick={addDevice}
                             >
-                                Add Device
+                                Add
                             </Button>
                         </Grid>
 
@@ -184,7 +204,7 @@ function Devices() {
                 <CardContent>
 
                     <Typography variant="h6">
-                        Device Inventory
+                        IoT Device Database
                     </Typography>
 
                     <br />
@@ -192,37 +212,25 @@ function Devices() {
                     <Table>
 
                         <TableHead>
+
                             <TableRow>
 
-                                <TableCell>
-                                    <b>ID</b>
-                                </TableCell>
+                                <TableCell><b>ID</b></TableCell>
 
-                                <TableCell>
-                                    <b>Device Name</b>
-                                </TableCell>
+                                <TableCell><b>Name</b></TableCell>
 
-                                <TableCell>
-                                    <b>Type</b>
-                                </TableCell>
+                                <TableCell><b>Type</b></TableCell>
 
-                                <TableCell>
-                                    <b>IMEI</b>
-                                </TableCell>
+                                <TableCell><b>IMEI</b></TableCell>
 
-                                <TableCell>
-                                    <b>Status</b>
-                                </TableCell>
+                                <TableCell><b>Status</b></TableCell>
 
-                                <TableCell>
-                                    <b>Location</b>
-                                </TableCell>
+                                <TableCell><b>Location</b></TableCell>
 
-                                <TableCell>
-                                    <b>Actions</b>
-                                </TableCell>
+                                <TableCell><b>Actions</b></TableCell>
 
                             </TableRow>
+
                         </TableHead>
 
                         <TableBody>
@@ -263,10 +271,10 @@ function Devices() {
                                             variant="contained"
                                             sx={{ mr: 1 }}
                                             onClick={() =>
-                                                toggleStatus(device.id)
+                                                changeStatus(device.id)
                                             }
                                         >
-                                            Edit
+                                            Status
                                         </Button>
 
                                         <Button

@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Devices from "./pages/Devices";
 import Users from "./pages/User & Access Management";
 import Logs from "./pages/Logs";
+import SimManagement from "./pages/SimManagement";
 
 function App() {
     return (
@@ -21,6 +22,12 @@ function App() {
                     path="/dashboard"
                     element={<Dashboard />}
                 />
+
+                <Route
+                    path="/sim"
+                    element={<SimManagement />}
+                />
+
                 <Route
                     path="/logs"
                     element={<Logs />}

@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
     Drawer,
     Toolbar,
@@ -15,10 +14,9 @@ const drawerWidth = 260;
 
 function Sidebar() {
 
-    const loggedInUser =
-        JSON.parse(
-            localStorage.getItem("loggedInUser")
-        );
+    const loggedInUser = JSON.parse(
+        localStorage.getItem("loggedInUser")
+    );
 
     const isAdmin =
         loggedInUser &&
@@ -43,6 +41,8 @@ function Sidebar() {
 
             <List>
 
+                {/* Dashboard */}
+
                 <ListItemButton
                     component={Link}
                     to="/dashboard"
@@ -52,15 +52,20 @@ function Sidebar() {
 
                 <Divider />
 
+                {/* Device Management */}
+
                 <ListItemButton
                     component={Link}
                     to="/devices"
                 >
-                    <ListItemText primary="Devices" />
+                    <ListItemText primary="IoT Device DB Management" />
                 </ListItemButton>
 
-                <ListItemButton>
-                    <ListItemText primary="SIM Inventory" />
+                <ListItemButton
+                    component={Link}
+                    to="/sim"
+                >
+                    <ListItemText primary="IoT Device SIM Management" />
                 </ListItemButton>
 
                 <ListItemButton>
@@ -68,6 +73,8 @@ function Sidebar() {
                 </ListItemButton>
 
                 <Divider />
+
+                {/* NEF Services */}
 
                 <ListItemButton>
                     <ListItemText primary="Event Exposure" />
@@ -86,6 +93,8 @@ function Sidebar() {
                 </ListItemButton>
 
                 <Divider />
+
+                {/* Operations */}
 
                 <ListItemButton>
                     <ListItemText primary="Events" />
@@ -108,11 +117,15 @@ function Sidebar() {
 
                 <Divider />
 
+                {/* Analytics */}
+
                 <ListItemButton>
                     <ListItemText primary="Analytics" />
                 </ListItemButton>
 
                 <Divider />
+
+                {/* Admin Only */}
 
                 {isAdmin && (
                     <>
@@ -127,18 +140,24 @@ function Sidebar() {
                     </>
                 )}
 
+                {/* Settings */}
+
                 <ListItemButton>
                     <ListItemText primary="Settings" />
                 </ListItemButton>
 
                 <Divider />
 
+                {/* Logout */}
+
                 <ListItemButton
                     component={Link}
                     to="/"
-                    onClick={() =>
-                        localStorage.removeItem("loggedInUser")
-                    }
+                    onClick={() => {
+                        localStorage.removeItem(
+                            "loggedInUser"
+                        );
+                    }}
                 >
                     <ListItemText primary="Logout" />
                 </ListItemButton>
