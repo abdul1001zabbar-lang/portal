@@ -99,6 +99,13 @@ function Sidebar() {
                     <ListItemText primary="Notifications" />
                 </ListItemButton>
 
+                <ListItemButton
+                    component={Link}
+                    to="/logs"
+                >
+                    <ListItemText primary="Structured Logging & Metrics" />
+                </ListItemButton>
+
                 <Divider />
 
                 <ListItemButton>

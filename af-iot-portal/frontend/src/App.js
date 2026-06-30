@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Devices from "./pages/Devices";
 import Users from "./pages/User & Access Management";
+import Logs from "./pages/Logs";
 
 function App() {
     return (
@@ -19,6 +20,10 @@ function App() {
                 <Route
                     path="/dashboard"
                     element={<Dashboard />}
+                />
+                <Route
+                    path="/logs"
+                    element={<Logs />}
                 />
 
                 <Route
