@@ -11,16 +11,25 @@ import {
 
 import { Link } from "react-router-dom";
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 function Sidebar() {
 
-    return (
+    const loggedInUser =
+        JSON.parse(
+            localStorage.getItem("loggedInUser")
+        );
 
+    const isAdmin =
+        loggedInUser &&
+        loggedInUser.role === "ADMIN";
+
+    return (
         <Drawer
             variant="permanent"
             sx={{
                 width: drawerWidth,
+                flexShrink: 0,
 
                 "& .MuiDrawer-paper": {
                     width: drawerWidth,
@@ -30,7 +39,6 @@ function Sidebar() {
                 }
             }}
         >
-
             <Toolbar />
 
             <List>
@@ -88,8 +96,29 @@ function Sidebar() {
                 </ListItemButton>
 
                 <ListItemButton>
+                    <ListItemText primary="Notifications" />
+                </ListItemButton>
+
+                <Divider />
+
+                <ListItemButton>
                     <ListItemText primary="Analytics" />
                 </ListItemButton>
+
+                <Divider />
+
+                {isAdmin && (
+                    <>
+                        <ListItemButton
+                            component={Link}
+                            to="/users"
+                        >
+                            <ListItemText primary="User & Access Management" />
+                        </ListItemButton>
+
+                        <Divider />
+                    </>
+                )}
 
                 <ListItemButton>
                     <ListItemText primary="Settings" />
@@ -100,6 +129,9 @@ function Sidebar() {
                 <ListItemButton
                     component={Link}
                     to="/"
+                    onClick={() =>
+                        localStorage.removeItem("loggedInUser")
+                    }
                 >
                     <ListItemText primary="Logout" />
                 </ListItemButton>

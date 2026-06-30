@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
 import Layout from "../components/Layout";
 
 import {
@@ -13,7 +14,31 @@ import {
     TableRow
 } from "@mui/material";
 
+import { getDevices } from "../data/deviceStorage";
+
 function Dashboard() {
+
+    const [devices, setDevices] = useState([]);
+
+    useEffect(() => {
+        const storedDevices = getDevices();
+        setDevices(storedDevices);
+    }, []);
+
+    const totalDevices = devices.length;
+
+    const onlineDevices =
+        devices.filter(
+            device => device.status === "Online"
+        ).length;
+
+    const offlineDevices =
+        devices.filter(
+            device => device.status === "Offline"
+        ).length;
+
+    const activeAlarms = 5;
+
     return (
         <Layout>
 
@@ -33,7 +58,7 @@ function Dashboard() {
                             </Typography>
 
                             <Typography variant="h3">
-                                100
+                                {totalDevices}
                             </Typography>
                         </CardContent>
                     </Card>
@@ -47,7 +72,7 @@ function Dashboard() {
                             </Typography>
 
                             <Typography variant="h3">
-                                82
+                                {onlineDevices}
                             </Typography>
                         </CardContent>
                     </Card>
@@ -61,7 +86,7 @@ function Dashboard() {
                             </Typography>
 
                             <Typography variant="h3">
-                                18
+                                {offlineDevices}
                             </Typography>
                         </CardContent>
                     </Card>
@@ -75,7 +100,7 @@ function Dashboard() {
                             </Typography>
 
                             <Typography variant="h3">
-                                5
+                                {activeAlarms}
                             </Typography>
                         </CardContent>
                     </Card>
@@ -94,17 +119,17 @@ function Dashboard() {
 
                     <br />
 
-                    <Typography>
-                        ✅ Sensor001 Registered
-                    </Typography>
-
-                    <Typography>
-                        ✅ Camera001 Location Updated
-                    </Typography>
-
-                    <Typography>
-                        ✅ Alarm Generated
-                    </Typography>
+                    {devices.length > 0 ? (
+                        devices.slice(-3).map((device) => (
+                            <Typography key={device.id}>
+                                ✅ {device.name} Registered / Updated
+                            </Typography>
+                        ))
+                    ) : (
+                        <Typography>
+                            No recent events
+                        </Typography>
+                    )}
 
                 </CardContent>
             </Card>
@@ -124,8 +149,21 @@ function Dashboard() {
 
                         <TableHead>
                             <TableRow>
+
                                 <TableCell>
-                                    <b>Device ID</b>
+                                    <b>ID</b>
+                                </TableCell>
+
+                                <TableCell>
+                                    <b>Device Name</b>
+                                </TableCell>
+
+                                <TableCell>
+                                    <b>Type</b>
+                                </TableCell>
+
+                                <TableCell>
+                                    <b>IMEI</b>
                                 </TableCell>
 
                                 <TableCell>
@@ -135,46 +173,43 @@ function Dashboard() {
                                 <TableCell>
                                     <b>Location</b>
                                 </TableCell>
+
                             </TableRow>
                         </TableHead>
 
                         <TableBody>
 
-                            <TableRow>
-                                <TableCell>
-                                    Sensor001
-                                </TableCell>
-                                <TableCell>
-                                    Online
-                                </TableCell>
-                                <TableCell>
-                                    Hyderabad
-                                </TableCell>
-                            </TableRow>
+                            {devices.map((device) => (
 
-                            <TableRow>
-                                <TableCell>
-                                    Camera001
-                                </TableCell>
-                                <TableCell>
-                                    Offline
-                                </TableCell>
-                                <TableCell>
-                                    Mumbai
-                                </TableCell>
-                            </TableRow>
+                                <TableRow key={device.id}>
 
-                            <TableRow>
-                                <TableCell>
-                                    Gateway001
-                                </TableCell>
-                                <TableCell>
-                                    Online
-                                </TableCell>
-                                <TableCell>
-                                    Bangalore
-                                </TableCell>
-                            </TableRow>
+                                    <TableCell>
+                                        {device.id}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {device.name}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {device.type}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {device.imei}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {device.status}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {device.location}
+                                    </TableCell>
+
+                                </TableRow>
+
+                            ))}
 
                         </TableBody>
 

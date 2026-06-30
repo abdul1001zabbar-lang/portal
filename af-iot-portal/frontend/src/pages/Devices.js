@@ -16,6 +16,11 @@ import {
     Grid
 } from "@mui/material";
 
+import {
+    getDevices,
+    saveDevices
+} from "../data/deviceStorage";
+
 function Devices() {
 
     const [deviceName, setDeviceName] = useState("");
@@ -23,32 +28,12 @@ function Devices() {
     const [imei, setImei] = useState("");
     const [location, setLocation] = useState("");
 
-    const [devices, setDevices] = useState([
-        {
-            id: 1,
-            name: "Sensor001",
-            type: "Sensor",
-            imei: "356789123456789",
-            status: "Online",
-            location: "Hyderabad"
-        },
-        {
-            id: 2,
-            name: "Camera001",
-            type: "Camera",
-            imei: "356789123456790",
-            status: "Offline",
-            location: "Mumbai"
-        },
-        {
-            id: 3,
-            name: "Gateway001",
-            type: "Gateway",
-            imei: "356789123456791",
-            status: "Online",
-            location: "Bangalore"
-        }
-    ]);
+    const [devices, setDevices] = useState(getDevices());
+
+    const updateDevices = (updatedDevices) => {
+        setDevices(updatedDevices);
+        saveDevices(updatedDevices);
+    };
 
     const addDevice = () => {
 
@@ -76,7 +61,12 @@ function Devices() {
             location: location
         };
 
-        setDevices([...devices, newDevice]);
+        const updatedDevices = [
+            ...devices,
+            newDevice
+        ];
+
+        updateDevices(updatedDevices);
 
         setDeviceName("");
         setDeviceType("");
@@ -86,16 +76,17 @@ function Devices() {
 
     const deleteDevice = (id) => {
 
-        setDevices(
+        const updatedDevices =
             devices.filter(
                 device => device.id !== id
-            )
-        );
+            );
+
+        updateDevices(updatedDevices);
     };
 
     const toggleStatus = (id) => {
 
-        setDevices(
+        const updatedDevices =
             devices.map(device =>
                 device.id === id
                     ? {
@@ -106,8 +97,9 @@ function Devices() {
                                 : "Online"
                     }
                     : device
-            )
-        );
+            );
+
+        updateDevices(updatedDevices);
     };
 
     return (

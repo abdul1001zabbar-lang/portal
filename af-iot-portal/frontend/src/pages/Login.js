@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
     Container,
     Paper,
     Typography,
     TextField,
-    Button
+    Button,
+    FormControlLabel,
+    Checkbox
 } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
+
+import { getUsers } from "../data/userStorage";
 
 function Login() {
 
@@ -16,16 +20,60 @@ function Login() {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
+
+    useEffect(() => {
+
+        const rememberedUser =
+            localStorage.getItem("rememberedUsername");
+
+        if (rememberedUser) {
+            setUsername(rememberedUser);
+            setRememberMe(true);
+        }
+
+    }, []);
 
     const login = () => {
 
-        if (
-            username === "admin" &&
-            password === "admin123"
-        ) {
+        const users = getUsers();
+
+        const validUser = users.find(
+            user =>
+                user.username === username &&
+                user.password === password
+        );
+
+        if (validUser) {
+
+            localStorage.setItem(
+                "loggedInUser",
+                JSON.stringify(validUser)
+            );
+
+            if (rememberMe) {
+
+                localStorage.setItem(
+                    "rememberedUsername",
+                    username
+                );
+
+            } else {
+
+                localStorage.removeItem(
+                    "rememberedUsername"
+                );
+
+            }
+
             navigate("/dashboard");
+
         } else {
-            alert("Invalid Username or Password");
+
+            alert(
+                "Invalid Username or Password"
+            );
+
         }
     };
 
@@ -42,8 +90,9 @@ function Login() {
             >
 
                 <Typography
-                    variant="h4"
+                    variant="h3"
                     align="center"
+                    gutterBottom
                 >
                     5G AF IoT Portal
                 </Typography>
@@ -75,13 +124,40 @@ function Login() {
                 <br />
                 <br />
 
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={rememberMe}
+                            onChange={(e) =>
+                                setRememberMe(
+                                    e.target.checked
+                                )
+                            }
+                        />
+                    }
+                    label="Remember Me"
+                />
+
+                <br />
+
                 <Button
-                    variant="contained"
                     fullWidth
+                    variant="contained"
+                    size="large"
                     onClick={login}
                 >
                     Login
                 </Button>
+
+                <br />
+                <br />
+
+                <Typography
+                    align="center"
+                    color="text.secondary"
+                >
+                    Secure Login - Authorized Users Only
+                </Typography>
 
             </Paper>
 
