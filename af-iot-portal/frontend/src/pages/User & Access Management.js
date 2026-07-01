@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 import Layout from "../components/Layout";
 
@@ -18,51 +19,45 @@ import {
     Alert
 } from "@mui/material";
 
-import {
-    getUsers,
-    saveUsers
-} from "../data/userStorage";
-
 function Users() {
 
     const loggedInUser =
-        JSON.parse(
-            localStorage.getItem("loggedInUser")
-        );
+        JSON.parse(localStorage.getItem("loggedInUser"));
 
     const isAdmin =
-        loggedInUser &&
-        loggedInUser.role === "ADMIN";
+        loggedInUser && loggedInUser.role === "ADMIN";
 
-    const [username, setUsername] =
-        useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [role, setRole] = useState("");
 
-    const [password, setPassword] =
-        useState("");
+    const [users, setUsers] = useState([]);
 
-    const [role, setRole] =
-        useState("");
+    // ✅ Load users from backend
+    useEffect(() => {
 
-    const [users, setUsers] =
-        useState(getUsers());
+        axios
+            .get("http://localhost:8080/users")
+            .then((res) => {
+                setUsers(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
+    }, []);
 
     if (!isAdmin) {
         return (
             <Layout>
-
                 <Alert severity="error">
                     Access Denied. Only ADMIN can manage users.
                 </Alert>
-
             </Layout>
         );
     }
 
-    const updateUsers = (updatedUsers) => {
-        setUsers(updatedUsers);
-        saveUsers(updatedUsers);
-    };
-
+    // ✅ Add User
     const addUser = () => {
 
         if (!username || !password || !role) {
@@ -70,59 +65,45 @@ function Users() {
             return;
         }
 
-        const usernameExists =
-            users.some(
-                user => user.username === username
-            );
+        axios
+            .post("http://localhost:8080/users", {
+                username,
+                password,
+                role
+            })
+            .then((res) => {
 
-        if (usernameExists) {
-            alert("Username already exists");
-            return;
-        }
+                setUsers([...users, res.data]);
 
-        const nextId =
-            users.length > 0
-                ? Math.max(...users.map(user => user.id)) + 1
-                : 1;
+                setUsername("");
+                setPassword("");
+                setRole("");
 
-        const newUser = {
-            id: nextId,
-            username: username,
-            password: password,
-            role: role
-        };
+            })
+            .catch((err) => {
+                console.log(err);
+            });
 
-        const updatedUsers = [
-            ...users,
-            newUser
-        ];
-
-        updateUsers(updatedUsers);
-
-        setUsername("");
-        setPassword("");
-        setRole("");
     };
 
+    // ✅ Delete User
     const deleteUser = (id) => {
 
-        const userToDelete =
-            users.find(user => user.id === id);
+        axios
+            .delete(`http://localhost:8080/users/${id}`)
+            .then(() => {
 
-        if (
-            userToDelete &&
-            userToDelete.username === "admin"
-        ) {
-            alert("Default admin user cannot be deleted");
-            return;
-        }
+                setUsers(
+                    users.filter(
+                        (user) => user.id !== id
+                    )
+                );
 
-        const updatedUsers =
-            users.filter(
-                user => user.id !== id
-            );
+            })
+            .catch((err) => {
+                console.log(err);
+            });
 
-        updateUsers(updatedUsers);
     };
 
     return (
@@ -176,17 +157,9 @@ function Users() {
                                     setRole(e.target.value)
                                 }
                             >
-                                <MenuItem value="ADMIN">
-                                    ADMIN
-                                </MenuItem>
-
-                                <MenuItem value="OPERATOR">
-                                    OPERATOR
-                                </MenuItem>
-
-                                <MenuItem value="VIEWER">
-                                    VIEWER
-                                </MenuItem>
+                                <MenuItem value="ADMIN">ADMIN</MenuItem>
+                                <MenuItem value="OPERATOR">OPERATOR</MenuItem>
+                                <MenuItem value="VIEWER">VIEWER</MenuItem>
                             </TextField>
                         </Grid>
 
@@ -220,25 +193,11 @@ function Users() {
                         <TableHead>
                             <TableRow>
 
-                                <TableCell>
-                                    <b>ID</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>Username</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>Password</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>Role</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>Actions</b>
-                                </TableCell>
+                                <TableCell><b>ID</b></TableCell>
+                                <TableCell><b>Username</b></TableCell>
+                                <TableCell><b>Password</b></TableCell>
+                                <TableCell><b>Role</b></TableCell>
+                                <TableCell><b>Actions</b></TableCell>
 
                             </TableRow>
                         </TableHead>
@@ -249,21 +208,10 @@ function Users() {
 
                                 <TableRow key={user.id}>
 
-                                    <TableCell>
-                                        {user.id}
-                                    </TableCell>
-
-                                    <TableCell>
-                                        {user.username}
-                                    </TableCell>
-
-                                    <TableCell>
-                                        ********
-                                    </TableCell>
-
-                                    <TableCell>
-                                        {user.role}
-                                    </TableCell>
+                                    <TableCell>{user.id}</TableCell>
+                                    <TableCell>{user.username}</TableCell>
+                                    <TableCell>********</TableCell>
+                                    <TableCell>{user.role}</TableCell>
 
                                     <TableCell>
 

@@ -1,13 +1,18 @@
 import React from "react";
+
 import {
     Drawer,
     Toolbar,
     List,
     ListItemButton,
     ListItemText,
-    Divider
+    Divider,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
 } from "@mui/material";
 
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Link } from "react-router-dom";
 
 const drawerWidth = 260;
@@ -37,6 +42,7 @@ function Sidebar() {
                 }
             }}
         >
+
             <Toolbar />
 
             <List>
@@ -58,39 +64,83 @@ function Sidebar() {
                     component={Link}
                     to="/devices"
                 >
-                    <ListItemText primary="IoT Device DB Management" />
+                    <ListItemText
+                        primary="IoT Device DB Management"
+                    />
                 </ListItemButton>
 
-                <ListItemButton
-                    component={Link}
-                    to="/sim"
+                {/* SIM Management Menu */}
+
+                <Accordion
+                    sx={{
+                        backgroundColor: "#263238",
+                        color: "white",
+                        boxShadow: "none"
+                    }}
                 >
-                    <ListItemText primary="IoT Device SIM Management" />
-                </ListItemButton>
 
-                <ListItemButton>
-                    <ListItemText primary="Device Lifecycle" />
-                </ListItemButton>
+                    <AccordionSummary
+                        expandIcon={
+                            <ExpandMoreIcon
+                                sx={{ color: "white" }}
+                            />
+                        }
+                    >
+                        <ListItemText
+                            primary="SIM Management"
+                        />
+                    </AccordionSummary>
 
-                <Divider />
+                    <AccordionDetails>
 
-                {/* NEF Services */}
+                        <ListItemButton>
+                            <ListItemText
+                                primary="Install SIM"
+                            />
+                        </ListItemButton>
 
-                <ListItemButton>
-                    <ListItemText primary="Event Exposure" />
-                </ListItemButton>
+                        <ListItemButton>
+                            <ListItemText
+                                primary="Access SIM"
+                            />
+                        </ListItemButton>
 
-                <ListItemButton>
-                    <ListItemText primary="Location Monitoring" />
-                </ListItemButton>
+                        <ListItemButton
+                            component={Link}
+                            to="/sim"
+                        >
+                            <ListItemText
+                                primary="Create New SIM"
+                            />
+                        </ListItemButton>
 
-                <ListItemButton>
-                    <ListItemText primary="QoS Management" />
-                </ListItemButton>
+                        <ListItemButton>
+                            <ListItemText
+                                primary="Configure SIM"
+                            />
+                        </ListItemButton>
 
-                <ListItemButton>
-                    <ListItemText primary="Traffic Influence" />
-                </ListItemButton>
+                        <ListItemButton>
+                            <ListItemText
+                                primary="Available SIMs"
+                            />
+                        </ListItemButton>
+
+                        <ListItemButton>
+                            <ListItemText
+                                primary="Reserve SIM"
+                            />
+                        </ListItemButton>
+
+                        <ListItemButton>
+                            <ListItemText
+                                primary="Manage Features"
+                            />
+                        </ListItemButton>
+
+                    </AccordionDetails>
+
+                </Accordion>
 
                 <Divider />
 
@@ -112,7 +162,9 @@ function Sidebar() {
                     component={Link}
                     to="/logs"
                 >
-                    <ListItemText primary="Structured Logging & Metrics" />
+                    <ListItemText
+                        primary="Structured Logging & Metrics"
+                    />
                 </ListItemButton>
 
                 <Divider />
@@ -125,7 +177,7 @@ function Sidebar() {
 
                 <Divider />
 
-                {/* Admin Only */}
+                {/* Admin */}
 
                 {isAdmin && (
                     <>
@@ -133,7 +185,9 @@ function Sidebar() {
                             component={Link}
                             to="/users"
                         >
-                            <ListItemText primary="User & Access Management" />
+                            <ListItemText
+                                primary="User & Access Management"
+                            />
                         </ListItemButton>
 
                         <Divider />
@@ -153,11 +207,11 @@ function Sidebar() {
                 <ListItemButton
                     component={Link}
                     to="/"
-                    onClick={() => {
+                    onClick={() =>
                         localStorage.removeItem(
                             "loggedInUser"
-                        );
-                    }}
+                        )
+                    }
                 >
                     <ListItemText primary="Logout" />
                 </ListItemButton>

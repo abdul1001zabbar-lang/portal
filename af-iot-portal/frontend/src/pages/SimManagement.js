@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import axios from "axios";
 
 import {
     Typography,
@@ -22,119 +22,99 @@ function SimManagement() {
     const [imsi, setImsi] = useState("");
     const [msisdn, setMsisdn] = useState("");
     const [operator, setOperator] = useState("");
+    const [assignedDevice, setAssignedDevice] = useState("");
 
-    const [sims, setSims] = useState([
-        {
-            id: 1,
-            iccid: "8991101200003204512",
-            imsi: "404450123456789",
-            msisdn: "9876543210",
-            operator: "Airtel",
-            status: "Active"
-        },
-        {
-            id: 2,
-            iccid: "8991101200003204513",
-            imsi: "404450123456790",
-            msisdn: "9876543211",
-            operator: "Jio",
-            status: "Inactive"
-        }
-    ]);
+    const [sims, setSims] = useState([]);
 
+    // ✅ Load SIMs from backend
+    useEffect(() => {
+
+        axios
+            .get("http://localhost:8080/sims")
+            .then((res) => {
+                setSims(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
+    }, []);
+
+    // ✅ Add SIM
     const addSim = () => {
 
-        if (
-            !iccid ||
-            !imsi ||
-            !msisdn ||
-            !operator
-        ) {
-            alert("Please fill all fields");
+        if (!iccid || !imsi || !assignedDevice) {
+            alert("Please fill required fields");
             return;
         }
 
-        const newSim = {
-            id:
-                sims.length > 0
-                    ? Math.max(...sims.map(s => s.id)) + 1
-                    : 1,
-            iccid,
-            imsi,
-            msisdn,
-            operator,
-            status: "Active"
-        };
+        axios
+            .post("http://localhost:8080/sims", {
+                simNumber: iccid,
+                imsi: imsi,
+                status: "Active",
+                deviceName: assignedDevice
+            })
+            .then((res) => {
 
-        setSims([...sims, newSim]);
+                setSims([
+                    ...sims,
+                    res.data
+                ]);
 
-        setIccid("");
-        setImsi("");
-        setMsisdn("");
-        setOperator("");
+                setIccid("");
+                setImsi("");
+                setMsisdn("");
+                setOperator("");
+                setAssignedDevice("");
+
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
     };
 
+    // ✅ Delete SIM
     const deleteSim = (id) => {
 
-        setSims(
-            sims.filter(sim => sim.id !== id)
-        );
-    };
+        axios
+            .delete(`http://localhost:8080/sims/${id}`)
+            .then(() => {
 
-    const toggleStatus = (id) => {
+                setSims(
+                    sims.filter(
+                        sim => sim.id !== id
+                    )
+                );
 
-        setSims(
-            sims.map(sim =>
-                sim.id === id
-                    ? {
-                        ...sim,
-                        status:
-                            sim.status === "Active"
-                                ? "Inactive"
-                                : "Active"
-                    }
-                    : sim
-            )
-        );
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
     };
 
     return (
+
         <Layout>
 
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
+            <Typography variant="h4" gutterBottom>
                 IoT Device SIM Management
-            </Typography>
-
-            <Typography
-                variant="subtitle1"
-                color="primary"
-            >
-                SIM Inventory • Subscription Management
-            </Typography>
-
-            <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 4 }}
-            >
-                Manage SIM cards used by IoT devices.
             </Typography>
 
             <Card sx={{ mb: 3 }}>
                 <CardContent>
 
                     <Typography variant="h6">
-                        Add New SIM
+                        Register New SIM
                     </Typography>
 
                     <br />
 
                     <Grid container spacing={2}>
 
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} md={2}>
                             <TextField
                                 fullWidth
                                 label="ICCID"
@@ -145,7 +125,7 @@ function SimManagement() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} md={2}>
                             <TextField
                                 fullWidth
                                 label="IMSI"
@@ -159,7 +139,7 @@ function SimManagement() {
                         <Grid item xs={12} md={2}>
                             <TextField
                                 fullWidth
-                                label="MSISDN"
+                                label="MSISDN (Optional)"
                                 value={msisdn}
                                 onChange={(e) =>
                                     setMsisdn(e.target.value)
@@ -170,10 +150,21 @@ function SimManagement() {
                         <Grid item xs={12} md={2}>
                             <TextField
                                 fullWidth
-                                label="Operator"
+                                label="Operator (Optional)"
                                 value={operator}
                                 onChange={(e) =>
                                     setOperator(e.target.value)
+                                }
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={2}>
+                            <TextField
+                                fullWidth
+                                label="Assigned Device"
+                                value={assignedDevice}
+                                onChange={(e) =>
+                                    setAssignedDevice(e.target.value)
                                 }
                             />
                         </Grid>
@@ -198,7 +189,7 @@ function SimManagement() {
                 <CardContent>
 
                     <Typography variant="h6">
-                        SIM Inventory
+                        SIM Inventory Database
                     </Typography>
 
                     <br />
@@ -206,39 +197,14 @@ function SimManagement() {
                     <Table>
 
                         <TableHead>
-
                             <TableRow>
-
-                                <TableCell>
-                                    <b>ID</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>ICCID</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>IMSI</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>MSISDN</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>Operator</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>Status</b>
-                                </TableCell>
-
-                                <TableCell>
-                                    <b>Actions</b>
-                                </TableCell>
-
+                                <TableCell><b>ID</b></TableCell>
+                                <TableCell><b>SIM Number</b></TableCell>
+                                <TableCell><b>IMSI</b></TableCell>
+                                <TableCell><b>Status</b></TableCell>
+                                <TableCell><b>Assigned Device</b></TableCell>
+                                <TableCell><b>Actions</b></TableCell>
                             </TableRow>
-
                         </TableHead>
 
                         <TableBody>
@@ -247,43 +213,13 @@ function SimManagement() {
 
                                 <TableRow key={sim.id}>
 
-                                    <TableCell>
-                                        {sim.id}
-                                    </TableCell>
+                                    <TableCell>{sim.id}</TableCell>
+                                    <TableCell>{sim.simNumber}</TableCell>
+                                    <TableCell>{sim.imsi}</TableCell>
+                                    <TableCell>{sim.status}</TableCell>
+                                    <TableCell>{sim.deviceName}</TableCell>
 
                                     <TableCell>
-                                        {sim.iccid}
-                                    </TableCell>
-
-                                    <TableCell>
-                                        {sim.imsi}
-                                    </TableCell>
-
-                                    <TableCell>
-                                        {sim.msisdn}
-                                    </TableCell>
-
-                                    <TableCell>
-                                        {sim.operator}
-                                    </TableCell>
-
-                                    <TableCell>
-                                        {sim.status}
-                                    </TableCell>
-
-                                    <TableCell>
-
-                                        <Button
-                                            size="small"
-                                            color="warning"
-                                            variant="contained"
-                                            sx={{ mr: 1 }}
-                                            onClick={() =>
-                                                toggleStatus(sim.id)
-                                            }
-                                        >
-                                            Status
-                                        </Button>
 
                                         <Button
                                             size="small"

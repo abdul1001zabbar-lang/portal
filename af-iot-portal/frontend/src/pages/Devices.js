@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 import Layout from "../components/Layout";
 
@@ -16,11 +17,6 @@ import {
     Grid
 } from "@mui/material";
 
-import {
-    getDevices,
-    saveDevices
-} from "../data/deviceStorage";
-
 function Devices() {
 
     const [deviceName, setDeviceName] = useState("");
@@ -28,88 +24,78 @@ function Devices() {
     const [imei, setImei] = useState("");
     const [location, setLocation] = useState("");
 
-    const [devices, setDevices] =
-        useState(getDevices());
+    const [devices, setDevices] = useState([]);
 
-    const updateDevices = (updated) => {
-        setDevices(updated);
-        saveDevices(updated);
-    };
+    useEffect(() => {
+        axios
+            .get("http://localhost:8080/devices")
+            .then((res) => {
+                setDevices(res.data);
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    }, []);
 
     const addDevice = () => {
 
-        if (
-            !deviceName ||
-            !deviceType ||
-            !imei ||
-            !location
-        ) {
-            alert("Please fill all fields");
-            return;
-        }
+        axios.post(
+            "http://localhost:8080/devices",
+            {
+                deviceName: deviceName,
+                deviceType: deviceType,
+                imei: imei,
+                location: location,
+                status: "Online"
+            }
+        )
+            .then((res) => {
 
-        const nextId =
-            devices.length > 0
-                ? Math.max(...devices.map(d => d.id)) + 1
-                : 1;
+                setDevices([
+                    ...devices,
+                    res.data
+                ]);
 
-        const newDevice = {
-            id: nextId,
-            name: deviceName,
-            type: deviceType,
-            imei: imei,
-            status: "Online",
-            location: location
-        };
+                setDeviceName("");
+                setDeviceType("");
+                setImei("");
+                setLocation("");
 
-        const updated = [
-            ...devices,
-            newDevice
-        ];
+            })
+            .catch((err) => {
 
-        updateDevices(updated);
+                console.log(err);
 
-        setDeviceName("");
-        setDeviceType("");
-        setImei("");
-        setLocation("");
+            });
+
     };
 
     const deleteDevice = (id) => {
 
-        const updated =
-            devices.filter(
-                device => device.id !== id
-            );
+        axios.delete(
+            `http://localhost:8080/devices/${id}`
+        )
+            .then(() => {
 
-        updateDevices(updated);
-    };
+                setDevices(
+                    devices.filter(
+                        device => device.id !== id
+                    )
+                );
 
-    const changeStatus = (id) => {
+            })
+            .catch((err) => {
 
-        const updated =
-            devices.map(device =>
-                device.id === id
-                    ? {
-                        ...device,
-                        status:
-                            device.status === "Online"
-                                ? "Offline"
-                                : "Online"
-                    }
-                    : device
-            );
+                console.log(err);
 
-        updateDevices(updated);
+            });
+
     };
 
     return (
         <Layout>
 
-            <Typography
-                variant="h4"
-                gutterBottom
-            >
+            <Typography variant="h4" gutterBottom>
                 IoT Device DB Management
             </Typography>
 
@@ -216,17 +202,11 @@ function Devices() {
                             <TableRow>
 
                                 <TableCell><b>ID</b></TableCell>
-
                                 <TableCell><b>Name</b></TableCell>
-
                                 <TableCell><b>Type</b></TableCell>
-
                                 <TableCell><b>IMEI</b></TableCell>
-
                                 <TableCell><b>Status</b></TableCell>
-
                                 <TableCell><b>Location</b></TableCell>
-
                                 <TableCell><b>Actions</b></TableCell>
 
                             </TableRow>
@@ -244,11 +224,11 @@ function Devices() {
                                     </TableCell>
 
                                     <TableCell>
-                                        {device.name}
+                                        {device.deviceName}
                                     </TableCell>
 
                                     <TableCell>
-                                        {device.type}
+                                        {device.deviceType}
                                     </TableCell>
 
                                     <TableCell>
